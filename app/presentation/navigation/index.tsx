@@ -8,12 +8,17 @@ const Stack = createStackNavigator<RootStackParamList>();
 
 export default function Navigation() {
   return (
-    <Stack.Navigator
-      initialRouteName="PostList"
-      screenOptions={{ headerShown: false }}
-    >
-      <Stack.Screen name="PostList" component={PostListView} />
-      <Stack.Screen name="PostDetail" component={PostDetailView} />
+    <Stack.Navigator initialRouteName="PostList">
+      <Stack.Screen
+        name="PostList"
+        component={PostListView}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="PostDetail"
+        component={PostDetailView}
+        options={{ headerTitle: "Back" }}
+      />
     </Stack.Navigator>
   );
 }
