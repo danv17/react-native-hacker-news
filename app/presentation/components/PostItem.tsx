@@ -1,12 +1,26 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import React from "react";
+import React, { useEffect, useRef } from "react";
 import { Post, RootStackParamList } from "../types";
 import { Swipeable } from "react-native-gesture-handler";
 import Button from "./commons/Button";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
 
-export default function PostItem({ author, title, source, created_at }: Post) {
+export default function PostItem({
+  author,
+  closeOpened,
+  created_at,
+  id,
+  onDelete,
+  onSwipeableOpen,
+  source,
+  title,
+}: Post & {
+  onDelete?: (id: string) => void;
+  closeOpened?: () => void;
+  onSwipeableOpen?: (item: Swipeable | null) => void;
+}) {
   const navigation =
     useNavigation<
       StackNavigationProp<
@@ -16,12 +30,21 @@ export default function PostItem({ author, title, source, created_at }: Post) {
       >
     >();
 
+  const item = useRef<Swipeable>(null);
+
   return (
     <Swipeable
       renderRightActions={() => (
-        <Button title="Delete" onPress={() => {}} type="secondary" />
+        <Button
+          title="Delete"
+          onPress={(e) => onDelete?.(id)}
+          type="secondary"
+        />
       )}
       overshootRight={false}
+      ref={item}
+      onSwipeableWillOpen={closeOpened}
+      onSwipeableOpen={() => onSwipeableOpen?.(item.current)}
     >
       <Pressable
         onPress={() =>

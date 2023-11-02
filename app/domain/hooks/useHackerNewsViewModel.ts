@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import getNewsUseCase from "../useCase/getNewsUseCase";
 import { getTimeAgo } from "../utils";
+import { Swipeable } from "react-native-gesture-handler";
 
-export const useHackerNewsViewModel = () => {
+export const useHackerNewsViewModel = (): [
+  data: HackerNew[],
+  onDelete: (id: string) => void
+] => {
   const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
+
+  const onDelete = (id: string) => {
+    setHackerNews(hackerNews.filter((i) => i.id !== id));
+  };
 
   const prepareData = (data: HackerNewsItemResponse[]) => {
     return data.map(
@@ -11,7 +19,6 @@ export const useHackerNewsViewModel = () => {
         author,
         comment_text,
         created_at,
-        created_at_i,
         objectID,
         story_url,
         story_title,
@@ -44,9 +51,13 @@ export const useHackerNewsViewModel = () => {
   useEffect(() => {
     getNewsUseCase
       .execute()
-      .then((data) => setHackerNews(prepareData(data)))
+      .then((data) => {
+        if (data?.length) {
+          setHackerNews(prepareData(data));
+        }
+      })
       .catch((error) => console.log(error));
   }, []);
 
-  return [hackerNews];
+  return [hackerNews, onDelete];
 };

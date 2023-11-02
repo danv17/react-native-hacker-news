@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { PostDetailScreenProps } from "../types";
 import { WebView } from "react-native-webview";
 import { ActivityIndicator } from "react-native";
@@ -12,7 +12,6 @@ export default function PostDetailView({ route }: PostDetailScreenProps) {
       style={{ flex: 1 }}
       startInLoadingState
       renderLoading={() => <ActivityIndicator size="large" />}
-      onError={(e) => console.log(e)}
     />
   );
 }
