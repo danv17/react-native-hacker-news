@@ -8,11 +8,7 @@ export default function PostListView() {
   const [news] = useHackerNewsViewModel();
   return (
     <SafeAreaView>
-      <FlatList
-        data={news}
-        keyExtractor={(item) => item.objectID}
-        renderItem={({ item }) => <PostItem {...item} />}
-      />
+      <FlatList data={news} renderItem={({ item }) => <PostItem {...item} />} />
     </SafeAreaView>
   );
 }

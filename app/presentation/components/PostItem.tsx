@@ -6,15 +6,7 @@ import Button from "./commons/Button";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
 
-export default function PostItem({
-  author,
-  title,
-  story_title,
-  story_url,
-  comment_text,
-  created_at,
-  created_at_i,
-}: Post) {
+export default function PostItem({ author, title, source, created_at }: Post) {
   const navigation =
     useNavigation<
       StackNavigationProp<
@@ -34,13 +26,12 @@ export default function PostItem({
       <Pressable
         onPress={() =>
           navigation.navigate("PostDetail", {
-            story_url,
-            comment_text,
+            source,
           })
         }
       >
         <View style={styles.item}>
-          <Text style={styles.header}>{story_title || title}</Text>
+          <Text style={styles.header}>{title}</Text>
           <View>
             <Text style={styles.subHeader}>{`${author} - ${created_at}`}</Text>
           </View>

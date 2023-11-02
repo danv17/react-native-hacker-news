@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useState } from "react";
 import { PostDetailScreenProps } from "../types";
 import { WebView } from "react-native-webview";
+import { ActivityIndicator } from "react-native";
 
 export default function PostDetailView({ route }: PostDetailScreenProps) {
-  const { story_url, comment_text } = route.params;
+  const { source } = route.params;
 
-  if (!story_url)
-    return <WebView source={{ html: comment_text }} style={{ flex: 1 }} />;
-
-  return <WebView source={{ uri: story_url }} style={{ flex: 1 }} />;
+  return (
+    <WebView
+      source={source}
+      style={{ flex: 1 }}
+      startInLoadingState
+      renderLoading={() => <ActivityIndicator size="large" />}
+      onError={(e) => console.log(e)}
+    />
+  );
 }

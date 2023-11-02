@@ -2,7 +2,7 @@ import { StackScreenProps } from "@react-navigation/stack";
 
 export type RootStackParamList = {
   PostList: undefined;
-  PostDetail: Pick<Post, "story_url" | "comment_text">;
+  PostDetail: Pick<Post, "source">;
 };
 
 export type PostDetailScreenProps = StackScreenProps<
@@ -15,12 +15,9 @@ export type PostResponse = {
 };
 
 export type Post = {
-  objectID: string;
+  id: string;
   author: string;
-  title?: string;
-  story_title?: string;
-  story_url: string;
-  comment_text: string;
   created_at: string;
-  created_at_i: number;
+  source: { html: string } | { uri: string };
+  title: string;
 };
