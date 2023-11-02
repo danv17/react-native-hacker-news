@@ -1,8 +1,8 @@
-type HackerNews = {
-  hits: HackerNewsItem[];
+type HackerNewsResponse = {
+  hits: HackerNewsItemResponse[];
 };
 
-type HackerNewsItem = {
+type HackerNewsItemResponse = {
   objectID: string;
   author: string;
   title?: string;

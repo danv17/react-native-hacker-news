@@ -1,12 +1,12 @@
 interface HackerNewsDataSource {
-  getNews(): Promise<HackerNewsItem[]>;
+  getNews(): Promise<HackerNewsItemResponse[]>;
 }
 
 interface HackerNewsLocalDataSource {
-  getNews(): Promise<HackerNewsItem[]>;
-  saveNews(news: HackerNewsItem[]): void;
+  getNews(): Promise<HackerNewsItemResponse[]>;
+  saveNews(news: HackerNewsItemResponse[]): void;
 }
 
 interface HackerNewsRemoteDataSource {
-  getNews(): Promise<HackerNews>;
+  getNews(): Promise<HackerNewsResponse>;
 }

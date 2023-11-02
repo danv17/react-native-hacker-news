@@ -5,8 +5,8 @@ export class HackerNewsRepository implements HackerNewsDataSource {
     private local: HackerNewsLocalDataSource,
     private remote: HackerNewsRemoteDataSource
   ) {}
-  async getNews(): Promise<HackerNewsItem[]> {
-    let response: HackerNewsItem[];
+  async getNews(): Promise<HackerNewsItemResponse[]> {
+    let response: HackerNewsItemResponse[];
     try {
       const news = await this.remote.getNews();
       this.local.saveNews(news.hits);
@@ -19,7 +19,7 @@ export class HackerNewsRepository implements HackerNewsDataSource {
 }
 
 export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
-  async getNews(): Promise<HackerNews> {
+  async getNews(): Promise<HackerNewsResponse> {
     try {
       const response = await fetch(
         "https://hn.algolia.com/api/v1/search_by_date?query=mobile"
@@ -33,11 +33,11 @@ export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
 }
 
 export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
-  async getNews(): Promise<HackerNewsItem[]> {
+  async getNews(): Promise<HackerNewsItemResponse[]> {
     try {
       const item = await AsyncStorage.getItem("news");
       if (item) {
-        const obj: HackerNewsItem[] = JSON.parse(item);
+        const obj: HackerNewsItemResponse[] = JSON.parse(item);
         return obj;
       }
       return [];
@@ -46,7 +46,7 @@ export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
     }
   }
 
-  async saveNews(news: HackerNewsItem[]) {
+  async saveNews(news: HackerNewsItemResponse[]) {
     try {
       await AsyncStorage.setItem("news", JSON.stringify(news));
     } catch (error) {
