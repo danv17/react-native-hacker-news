@@ -8,8 +8,8 @@ const local = new HackerNewsLocalRepository();
 const remote = new HackerNewsRemoteRepository();
 const repo = new HackerNewsRepository(local, remote);
 
-class GetNewsUseCase implements UseCase<HackerNewsItem[]> {
-  async execute(): Promise<HackerNewsItem[]> {
+class GetNewsUseCase implements UseCase<HackerNewsItemResponse[]> {
+  async execute(): Promise<HackerNewsItemResponse[]> {
     try {
       return await repo.getNews();
     } catch (error) {
