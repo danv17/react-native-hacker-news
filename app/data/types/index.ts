@@ -10,4 +10,5 @@ type HackerNewsItem = {
   created_at_i: number;
   created_at: string;
   story_url: string;
+  comment_text: string;
 };

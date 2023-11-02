@@ -11,6 +11,7 @@ export default function PostItem({
   title,
   story_title,
   story_url,
+  comment_text,
   created_at,
   created_at_i,
 }: Post) {
@@ -34,6 +35,7 @@ export default function PostItem({
         onPress={() =>
           navigation.navigate("PostDetail", {
             story_url,
+            comment_text,
           })
         }
       >
