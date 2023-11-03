@@ -1,12 +1,14 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import getNewsUseCase from "../useCase/getNewsUseCase";
 import { getTimeAgo } from "../utils";
-import { Swipeable } from "react-native-gesture-handler";
 
 export const useHackerNewsViewModel = (): [
   data: HackerNew[],
-  onDelete: (id: string) => void
+  isRefreshing: boolean,
+  onDelete: (id: string) => void,
+  fetchData: () => void
 ] => {
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
 
   const onDelete = (id: string) => {
@@ -48,7 +50,7 @@ export const useHackerNewsViewModel = (): [
     );
   };
 
-  useEffect(() => {
+  const fetchData = () => {
     getNewsUseCase
       .execute()
       .then((data) => {
@@ -56,8 +58,16 @@ export const useHackerNewsViewModel = (): [
           setHackerNews(prepareData(data));
         }
       })
-      .catch((error) => console.log(error));
-  }, []);
+      .catch((error) => console.log(error))
+      .finally(() => setIsRefreshing(false));
+  };
 
-  return [hackerNews, onDelete];
+  const onRefresh = () => {
+    setIsRefreshing(true);
+    fetchData();
+  };
+
+  useEffect(fetchData, []);
+
+  return [hackerNews, isRefreshing, onDelete, onRefresh];
 };
