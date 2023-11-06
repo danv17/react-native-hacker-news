@@ -1,5 +1,8 @@
 interface HackerNewsDataSource {
-  getNews(page: number): Promise<HackerNewsItemResponse[]>;
+  getNews(
+    page: number,
+    isRefreshing: boolean
+  ): Promise<HackerNewsItemResponse[]>;
   deletePost(id: string): Promise<void>;
 }
 

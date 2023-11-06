@@ -14,14 +14,16 @@ export class HackerNewsRepository implements HackerNewsDataSource {
       throw error;
     }
   }
-  async getNews(page: number = 0): Promise<HackerNewsItemResponse[]> {
+  async getNews(
+    page: number = 0,
+    isRefreshing: boolean
+  ): Promise<HackerNewsItemResponse[]> {
     let response: HackerNewsItemResponse[];
     try {
       // await AsyncStorage.multiRemove(["page", "currentPage", "posts"]);
       // return [];
-      const nextPage = await getPage(page);
+      const nextPage = await getPage(page, isRefreshing);
       const { hits, page: currentPage } = await this.remote.getNews(nextPage);
-      console.log(nextPage, currentPage);
       const remoteNews = hits.map(
         ({
           author,

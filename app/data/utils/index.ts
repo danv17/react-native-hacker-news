@@ -54,12 +54,19 @@ export const mergeData = (
   }
 };
 
-export const getPage = async (page: number): Promise<number> => {
+export const getPage = async (
+  page: number,
+  isRefreshing = false
+): Promise<number> => {
   try {
     const localPage = await AsyncStorage.getItem("currentPage");
-    console.log("localPage", localPage);
-    const nextPage = localPage ? <number>JSON.parse(localPage) + 1 : page;
-    return nextPage;
+    if (localPage) {
+      const pageNumber: number = JSON.parse(localPage);
+      if (isRefreshing) return pageNumber;
+      const nextPage = localPage ? <number>JSON.parse(localPage) + 1 : page;
+      return nextPage;
+    }
+    return page;
   } catch (error) {
     throw error;
   }

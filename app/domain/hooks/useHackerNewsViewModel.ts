@@ -5,13 +5,15 @@ import { getTimeAgo } from "../utils";
 
 export const useHackerNewsViewModel = (): [
   data: HackerNew[],
+  isLoading: boolean,
   isRefreshing: boolean,
   onDelete: (id: string) => void,
   onRefresh: () => void,
-  fetchData: () => void
+  loadMore: () => void
 ] => {
   const [page, setPage] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
 
   const onDelete = async (id: string) => {
@@ -58,7 +60,7 @@ export const useHackerNewsViewModel = (): [
 
   const fetchData = () => {
     getNewsUseCase
-      .execute(page)
+      .execute({ page, isRefreshing })
       .then((data) => {
         if (data?.length) {
           setHackerNews(prepareData(data));
@@ -66,15 +68,33 @@ export const useHackerNewsViewModel = (): [
         }
       })
       .catch((error) => console.log(error))
-      .finally(() => setIsRefreshing(false));
+      .finally(() => {
+        setIsRefreshing(false);
+        setIsLoading(false);
+      });
   };
 
   const onRefresh = () => {
     setIsRefreshing(true);
-    fetchData();
   };
+
+  const loadMore = () => {
+    setIsLoading(true);
+  };
+
+  useEffect(() => {
+    if (isRefreshing) {
+      fetchData();
+    }
+  }, [isRefreshing]);
+
+  useEffect(() => {
+    if (isLoading) {
+      fetchData();
+    }
+  }, [isLoading]);
 
   useEffect(fetchData, []);
 
-  return [hackerNews, isRefreshing, onDelete, onRefresh, fetchData];
+  return [hackerNews, isLoading, isRefreshing, onDelete, onRefresh, loadMore];
 };
