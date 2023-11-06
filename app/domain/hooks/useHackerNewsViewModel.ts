@@ -1,18 +1,23 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import getNewsUseCase from "../useCase/getNewsUseCase";
+import detelePostUseCase from "../useCase/deletePostUseCase";
 import { getTimeAgo } from "../utils";
 
 export const useHackerNewsViewModel = (): [
   data: HackerNew[],
   isRefreshing: boolean,
   onDelete: (id: string) => void,
-  fetchData: () => void
+  onRefresh: () => void
 ] => {
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
 
-  const onDelete = (id: string) => {
-    setHackerNews(hackerNews.filter((i) => i.id !== id));
+  const onDelete = async (id: string) => {
+    detelePostUseCase
+      .execute(id)
+      .then(onRefresh)
+      .catch((error) => console.log(error));
+    // setHackerNews(hackerNews.filter((i) => i.id !== id));
   };
 
   const prepareData = (data: HackerNewsItemResponse[]) => {
@@ -37,7 +42,7 @@ export const useHackerNewsViewModel = (): [
             source = { uri: story_url };
           }
         } else {
-          source = { html: comment_text };
+          source = { html: comment_text || "" };
         }
         return {
           author,

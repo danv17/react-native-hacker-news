@@ -1,14 +1,14 @@
 import { View, Text, StyleSheet, Pressable } from "react-native";
-import React, { useEffect, useRef } from "react";
+import React, { useRef } from "react";
 import { Post, RootStackParamList } from "../types";
 import { Swipeable } from "react-native-gesture-handler";
 import Button from "./commons/Button";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
 
 export default function PostItem({
   author,
+  closeLastOpened,
   closeOpened,
   created_at,
   id,
@@ -18,8 +18,9 @@ export default function PostItem({
   title,
 }: Post & {
   onDelete?: (id: string) => void;
-  closeOpened?: () => void;
+  closeOpened?: (item: Swipeable | null) => void;
   onSwipeableOpen?: (item: Swipeable | null) => void;
+  closeLastOpened?: () => void;
 }) {
   const navigation =
     useNavigation<
@@ -43,15 +44,16 @@ export default function PostItem({
       )}
       overshootRight={false}
       ref={item}
-      onSwipeableWillOpen={closeOpened}
+      onSwipeableWillOpen={() => closeOpened?.(item.current)}
       onSwipeableOpen={() => onSwipeableOpen?.(item.current)}
     >
       <Pressable
-        onPress={() =>
+        onPress={() => {
+          closeLastOpened?.();
           navigation.navigate("PostDetail", {
             source,
-          })
-        }
+          });
+        }}
       >
         <View style={styles.item}>
           <Text style={styles.header}>{title}</Text>

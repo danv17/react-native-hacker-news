@@ -9,6 +9,7 @@ type HackerNewsItemResponse = {
   story_title?: string;
   created_at_i: number;
   created_at: string;
-  story_url: string;
-  comment_text: string;
+  story_url?: string;
+  comment_text?: string;
+  deleted: boolean;
 };

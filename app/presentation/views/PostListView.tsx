@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { FlatList } from "react-native";
 import PostItem from "../components/PostItem";
@@ -7,7 +7,7 @@ import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
 
 export default function PostListView() {
   const [news, isRefreshing, onDelete, onRefresh] = useHackerNewsViewModel();
-  const [closeOpened, onSwipeableOpen] = useSwipeableItem();
+  const [closeOpened, onSwipeableOpen, closeLastOpened] = useSwipeableItem();
 
   return (
     <SafeAreaView>
@@ -16,8 +16,9 @@ export default function PostListView() {
         renderItem={({ item }) => (
           <PostItem
             {...item}
-            onDelete={onDelete}
+            closeLastOpened={closeLastOpened}
             closeOpened={closeOpened}
+            onDelete={onDelete}
             onSwipeableOpen={onSwipeableOpen}
           />
         )}

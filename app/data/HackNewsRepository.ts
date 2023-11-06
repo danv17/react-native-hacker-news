@@ -1,17 +1,51 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { mergeData, reduceData } from "./utils";
 
 export class HackerNewsRepository implements HackerNewsDataSource {
   constructor(
     private local: HackerNewsLocalDataSource,
     private remote: HackerNewsRemoteDataSource
   ) {}
+
+  async deletePost(id: string): Promise<void> {
+    try {
+      return await this.local.deletePost(id);
+    } catch (error) {
+      throw error;
+    }
+  }
   async getNews(): Promise<HackerNewsItemResponse[]> {
     let response: HackerNewsItemResponse[];
     try {
       const news = await this.remote.getNews();
-      this.local.saveNews(news.hits);
-      response = news.hits;
+      const remoteNews = news.map(
+        ({
+          author,
+          created_at,
+          created_at_i,
+          deleted,
+          objectID,
+          comment_text,
+          story_title,
+          story_url,
+          title,
+        }) => ({
+          author,
+          created_at,
+          created_at_i,
+          deleted: deleted === undefined ? false : deleted,
+          objectID,
+          story_url: typeof story_url === "undefined" ? "" : story_url,
+          story_title: typeof story_title === "undefined" ? "" : story_title,
+          title: typeof title === "undefined" ? "" : title,
+        })
+      );
+      const localNews = await this.local.getNews();
+      const mergedData = mergeData(remoteNews, localNews);
+      this.local.saveNews(mergedData);
+      response = mergedData.filter((d) => !d.deleted);
     } catch (error) {
+      await AsyncStorage.removeItem("posts");
       response = await this.local.getNews();
     }
     return response;
@@ -19,13 +53,13 @@ export class HackerNewsRepository implements HackerNewsDataSource {
 }
 
 export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
-  async getNews(): Promise<HackerNewsResponse> {
+  async getNews(): Promise<HackerNewsItemResponse[]> {
     try {
       const response = await fetch(
         "https://hn.algolia.com/api/v1/search_by_date?query=mobile"
       );
-      const json = response.json();
-      return json;
+      const json: HackerNewsResponse = await response.json();
+      return json.hits;
     } catch (error) {
       throw error;
     }
@@ -33,12 +67,26 @@ export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
 }
 
 export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
+  async deletePost(id: string): Promise<void> {
+    try {
+      const item = await AsyncStorage.getItem("posts");
+      if (item) {
+        const obj = JSON.parse(item);
+        if (obj && obj[id]) {
+          obj[id].deleted = true;
+          this.saveNews(Array.from(Object.values(obj)));
+        }
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   async getNews(): Promise<HackerNewsItemResponse[]> {
     try {
-      const item = await AsyncStorage.getItem("news");
+      const item = await AsyncStorage.getItem("posts");
       if (item) {
-        const obj: HackerNewsItemResponse[] = JSON.parse(item);
-        return obj;
+        const obj: { [key: string]: HackerNewsItemResponse } = JSON.parse(item);
+        return Object.values(obj);
       }
       return [];
     } catch (error) {
@@ -48,7 +96,9 @@ export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
 
   async saveNews(news: HackerNewsItemResponse[]) {
     try {
-      await AsyncStorage.setItem("news", JSON.stringify(news));
+      let obj: { [key: string]: HackerNewsItemResponse } = {};
+      reduceData(news, obj, true);
+      await AsyncStorage.setItem("posts", JSON.stringify(obj));
     } catch (error) {
       throw error;
     }
