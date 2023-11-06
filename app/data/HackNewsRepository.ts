@@ -1,5 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { mergeData, reduceData } from "./utils";
+import { getPage, mergeData, reduceData } from "./utils";
 
 export class HackerNewsRepository implements HackerNewsDataSource {
   constructor(
@@ -14,11 +14,15 @@ export class HackerNewsRepository implements HackerNewsDataSource {
       throw error;
     }
   }
-  async getNews(): Promise<HackerNewsItemResponse[]> {
+  async getNews(page: number = 0): Promise<HackerNewsItemResponse[]> {
     let response: HackerNewsItemResponse[];
     try {
-      const news = await this.remote.getNews();
-      const remoteNews = news.map(
+      // await AsyncStorage.multiRemove(["page", "currentPage", "posts"]);
+      // return [];
+      const nextPage = await getPage(page);
+      const { hits, page: currentPage } = await this.remote.getNews(nextPage);
+      console.log(nextPage, currentPage);
+      const remoteNews = hits.map(
         ({
           author,
           created_at,
@@ -42,7 +46,8 @@ export class HackerNewsRepository implements HackerNewsDataSource {
       );
       const localNews = await this.local.getNews();
       const mergedData = mergeData(remoteNews, localNews);
-      this.local.saveNews(mergedData);
+      await this.local.saveNews(mergedData);
+      await AsyncStorage.setItem("currentPage", String(currentPage));
       response = mergedData.filter((d) => !d.deleted);
     } catch (error) {
       await AsyncStorage.removeItem("posts");
@@ -53,13 +58,13 @@ export class HackerNewsRepository implements HackerNewsDataSource {
 }
 
 export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
-  async getNews(): Promise<HackerNewsItemResponse[]> {
+  async getNews(page: number = 0): Promise<HackerNewsResponse> {
     try {
       const response = await fetch(
-        "https://hn.algolia.com/api/v1/search_by_date?query=mobile"
+        `https://hn.algolia.com/api/v1/search_by_date?query=mobile&page=${page}`
       );
       const json: HackerNewsResponse = await response.json();
-      return json.hits;
+      return json;
     } catch (error) {
       throw error;
     }

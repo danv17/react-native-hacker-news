@@ -1,5 +1,6 @@
 type HackerNewsResponse = {
   hits: HackerNewsItemResponse[];
+  page: number;
 };
 
 type HackerNewsItemResponse = {

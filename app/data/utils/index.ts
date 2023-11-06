@@ -1,3 +1,5 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+
 export const reduceData = (
   data: HackerNewsItemResponse[],
   acc: { [key: string]: HackerNewsItemResponse },
@@ -47,6 +49,17 @@ export const mergeData = (
     reduceData(remoteData, data, true);
     reduceData(localData, data);
     return Object.values(data);
+  } catch (error) {
+    throw error;
+  }
+};
+
+export const getPage = async (page: number): Promise<number> => {
+  try {
+    const localPage = await AsyncStorage.getItem("currentPage");
+    console.log("localPage", localPage);
+    const nextPage = localPage ? <number>JSON.parse(localPage) + 1 : page;
+    return nextPage;
   } catch (error) {
     throw error;
   }

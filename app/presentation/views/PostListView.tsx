@@ -6,7 +6,8 @@ import { useHackerNewsViewModel } from "../../domain/hooks/useHackerNewsViewMode
 import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
 
 export default function PostListView() {
-  const [news, isRefreshing, onDelete, onRefresh] = useHackerNewsViewModel();
+  const [news, isRefreshing, onDelete, onRefresh, fetchData] =
+    useHackerNewsViewModel();
   const [closeOpened, onSwipeableOpen, closeLastOpened] = useSwipeableItem();
 
   return (
@@ -24,6 +25,7 @@ export default function PostListView() {
         )}
         refreshing={isRefreshing}
         onRefresh={onRefresh}
+        onEndReached={fetchData}
       />
     </SafeAreaView>
   );

@@ -1,5 +1,5 @@
 interface HackerNewsDataSource {
-  getNews(): Promise<HackerNewsItemResponse[]>;
+  getNews(page: number): Promise<HackerNewsItemResponse[]>;
   deletePost(id: string): Promise<void>;
 }
 
@@ -10,5 +10,5 @@ interface HackerNewsLocalDataSource {
 }
 
 interface HackerNewsRemoteDataSource {
-  getNews(): Promise<HackerNewsItemResponse[]>;
+  getNews(page: number): Promise<HackerNewsResponse>;
 }

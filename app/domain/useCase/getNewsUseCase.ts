@@ -7,10 +7,10 @@ import {
 const local = new HackerNewsLocalRepository();
 const remote = new HackerNewsRemoteRepository();
 const repo = new HackerNewsRepository(local, remote);
-class GetNewsUseCase implements UseCase<HackerNewsItemResponse[]> {
-  async execute(): Promise<HackerNewsItemResponse[]> {
+class GetNewsUseCase implements UseCase<HackerNewsItemResponse[], number> {
+  async execute(page: number): Promise<HackerNewsItemResponse[]> {
     try {
-      return await repo.getNews();
+      return await repo.getNews(page);
     } catch (error) {
       throw error;
     }

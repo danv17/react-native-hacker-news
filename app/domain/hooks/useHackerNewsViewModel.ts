@@ -7,8 +7,10 @@ export const useHackerNewsViewModel = (): [
   data: HackerNew[],
   isRefreshing: boolean,
   onDelete: (id: string) => void,
-  onRefresh: () => void
+  onRefresh: () => void,
+  fetchData: () => void
 ] => {
+  const [page, setPage] = useState(0);
   const [isRefreshing, setIsRefreshing] = useState(false);
   const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
 
@@ -17,7 +19,6 @@ export const useHackerNewsViewModel = (): [
       .execute(id)
       .then(onRefresh)
       .catch((error) => console.log(error));
-    // setHackerNews(hackerNews.filter((i) => i.id !== id));
   };
 
   const prepareData = (data: HackerNewsItemResponse[]) => {
@@ -57,10 +58,11 @@ export const useHackerNewsViewModel = (): [
 
   const fetchData = () => {
     getNewsUseCase
-      .execute()
+      .execute(page)
       .then((data) => {
         if (data?.length) {
           setHackerNews(prepareData(data));
+          setPage(page + 1);
         }
       })
       .catch((error) => console.log(error))
@@ -74,5 +76,5 @@ export const useHackerNewsViewModel = (): [
 
   useEffect(fetchData, []);
 
-  return [hackerNews, isRefreshing, onDelete, onRefresh];
+  return [hackerNews, isRefreshing, onDelete, onRefresh, fetchData];
 };
