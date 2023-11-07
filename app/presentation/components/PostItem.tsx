@@ -2,10 +2,9 @@ import { View, Text, StyleSheet, Pressable } from "react-native";
 import React, { useRef } from "react";
 import { Post, RootStackParamList } from "../types";
 import { Swipeable } from "react-native-gesture-handler";
-import Button from "./commons/Button";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
-import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
+import SwipeButton from "./commons/SwipeButton";
 
 export default function PostItem({
   author,
@@ -13,15 +12,13 @@ export default function PostItem({
   closeOpened,
   created_at,
   id,
+  like,
   onDelete,
+  onLike,
   onSwipeableOpen,
   source,
   title,
-}: Post & {
-  closeLastOpened: () => void;
-  closeOpened: (item: Swipeable | null) => void;
-  onSwipeableOpen: (item: Swipeable | null) => void;
-}) {
+}: Post) {
   const navigation =
     useNavigation<
       StackNavigationProp<
@@ -30,16 +27,24 @@ export default function PostItem({
         undefined
       >
     >();
-  // const [closeOpened, onSwipeableOpen, closeLastOpened] = useSwipeableItem();
+
   const item = useRef<Swipeable>(null);
 
   return (
     <Swipeable
       renderRightActions={() => (
-        <Button
-          title="Delete"
-          onPress={(e) => onDelete?.(id)}
-          type="secondary"
+        <SwipeButton icon="trash" onPress={(e) => onDelete?.(id)} />
+      )}
+      renderLeftActions={() => (
+        <SwipeButton
+          icon="heart"
+          onPress={(e) => {
+            onLike?.(id);
+            closeLastOpened();
+          }}
+          type="like"
+          side="left"
+          inverted={like}
         />
       )}
       overshootRight={false}
@@ -55,10 +60,14 @@ export default function PostItem({
           });
         }}
       >
-        <View style={styles.item}>
-          <Text style={styles.header}>{title}</Text>
-          <View>
-            <Text style={styles.subHeader}>{`${author} - ${created_at}`}</Text>
+        <View style={styles.background}>
+          <View style={{ ...styles.item, ...(like ? styles.like : {}) }}>
+            <Text style={styles.header}>{title}</Text>
+            <View>
+              <Text
+                style={styles.subHeader}
+              >{`${author} - ${created_at}`}</Text>
+            </View>
           </View>
         </View>
       </Pressable>
@@ -67,15 +76,22 @@ export default function PostItem({
 }
 
 const styles = StyleSheet.create({
+  background: {
+    backgroundColor: "#FFF",
+    borderRadius: 20,
+    marginVertical: 5,
+    marginHorizontal: 10,
+  },
   item: {
     paddingHorizontal: 16,
     borderColor: "#666",
-    borderTopWidth: 1,
-    borderBottomWidth: 0.5,
     backgroundColor: "#fff",
     rowGap: 5,
     height: 100,
     justifyContent: "center",
+    borderRadius: 20,
+    borderBlockColor: "black",
+    borderWidth: 1,
   },
   header: {
     fontWeight: "bold",
@@ -84,5 +100,10 @@ const styles = StyleSheet.create({
   },
   subHeader: {
     color: "gray",
+  },
+  like: {
+    backgroundColor: "#39768426",
+    borderColor: "#397684",
+    borderWidth: 2,
   },
 });

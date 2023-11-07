@@ -1,44 +1,31 @@
-import React, { useCallback, useContext, useRef } from "react";
+import React, { useRef } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
-import {
-  FlatList,
-  NativeScrollEvent,
-  NativeSyntheticEvent,
-  Pressable,
-  View,
-} from "react-native";
+import { FlatList, View } from "react-native";
 import { FontAwesome5 } from "@expo/vector-icons";
 import PostItem from "../components/PostItem";
 import { useHackerNewsViewModel } from "../../domain/hooks/useHackerNewsViewModel";
 import Loading from "../components/commons/Loading";
 import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
-import {
-  HackerNewsReducerContext,
-  HackerNewsStateContext,
-} from "../../domain/context";
 import { useScroll } from "../../domain/hooks/useScroll";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function PostListView() {
-  const [news, isLoading, isRefreshing, onDelete, onRefresh, loadMore] =
-    useHackerNewsViewModel();
+  const [
+    news,
+    isLoading,
+    isRefreshing,
+    onDelete,
+    onRefresh,
+    loadMore,
+    onLike,
+    // onSearch,
+    // query,
+    // onChangeQuery,
+    // onClear,
+  ] = useHackerNewsViewModel();
   const [closeOpened, onSwipeableOpen, closeLastOpened] = useSwipeableItem();
   const [isTop, scrollTop, onScroll, onStartReached] = useScroll();
-  const ref = useRef<FlatList<HackerNew>>(null);
-
-  // const goUp = useCallback(() => {
-  //   if (ref.current) {
-  //     ref.current.scrollToIndex({ animated: true, index: 0 });
-  //     !isTop && update?.({ isTop: true });
-  //   }
-  // }, [isTop]);
-
-  // const onScroll = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
-  //   if (e.nativeEvent.contentOffset.y > 200) {
-  //     isTop && update?.({ isTop: false });
-  //   } else {
-  //     !isTop && update?.({ isTop: true });
-  //   }
-  // };
+  const flRef = useRef<FlatList<HackerNew>>(null);
 
   return (
     <SafeAreaView>
@@ -46,8 +33,8 @@ export default function PostListView() {
         <View
           style={{ position: "absolute", bottom: 25, right: 25, zIndex: 1 }}
         >
-          <Pressable
-            onPress={() => scrollTop(ref.current)}
+          <TouchableOpacity
+            onPress={() => scrollTop(flRef.current)}
             style={{
               opacity: 0.75,
               backgroundColor: "gray",
@@ -55,12 +42,12 @@ export default function PostListView() {
               borderRadius: 10,
             }}
           >
-            <FontAwesome5 name="arrow-up" />
-          </Pressable>
+            <FontAwesome5 name="arrow-up" size={16} />
+          </TouchableOpacity>
         </View>
       )}
       <FlatList
-        ref={ref}
+        ref={flRef}
         data={news}
         renderItem={({ item }) => (
           <PostItem
@@ -69,16 +56,17 @@ export default function PostListView() {
             closeLastOpened={closeLastOpened}
             closeOpened={closeOpened}
             onSwipeableOpen={onSwipeableOpen}
+            onLike={onLike}
           />
         )}
         refreshing={isRefreshing}
         onRefresh={onRefresh}
         onEndReached={loadMore}
-        showsVerticalScrollIndicator={false}
+        // showsVerticalScrollIndicator={false}
         ListFooterComponent={() => isLoading && <Loading />}
         onScroll={onScroll}
         onStartReached={onStartReached}
-        // onStartReachedThreshold={100}
+        onEndReachedThreshold={2}
       />
     </SafeAreaView>
   );

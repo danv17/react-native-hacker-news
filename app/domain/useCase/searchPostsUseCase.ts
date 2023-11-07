@@ -8,14 +8,18 @@ const local = new HackerNewsLocalRepository();
 const remote = new HackerNewsRemoteRepository();
 const repo = new HackerNewsRepository(local, remote);
 
-class DeletePostUseCase implements UseCase<void, string> {
-  async execute(id: string): Promise<void> {
+class SearchPostsUseCase
+  implements UseCase<HackerNewsItemResponse[], SearchPostsParamType>
+{
+  async execute({
+    query,
+  }: SearchPostsParamType): Promise<HackerNewsItemResponse[]> {
     try {
-      repo.deletePost(id);
+      return await repo.search(query);
     } catch (error) {
       throw error;
     }
   }
 }
 
-export default new DeletePostUseCase();
+export default new SearchPostsUseCase();

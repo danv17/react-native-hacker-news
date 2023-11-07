@@ -7,9 +7,20 @@ export class HackerNewsRepository implements HackerNewsDataSource {
     private remote: HackerNewsRemoteDataSource
   ) {}
 
+  async likePost(id: string): Promise<HackerNewsItemResponse[]> {
+    try {
+      const data = await this.local.likePost(id);
+      return data
+        ?.filter((d) => !d.deleted)
+        .sort((a, b) => b.created_at_i - a.created_at_i);
+    } catch (error) {
+      throw error;
+    }
+  }
+
   async deletePost(id: string): Promise<void> {
     try {
-      return await this.local.deletePost(id);
+      this.local.deletePost(id);
     } catch (error) {
       throw error;
     }
@@ -30,15 +41,15 @@ export class HackerNewsRepository implements HackerNewsDataSource {
           created_at,
           created_at_i,
           deleted,
+          like,
           objectID,
-          comment_text,
+          // comment_text,
           story_title,
           story_url,
           title,
           url,
         }) => ({
           author,
-          comment_text,
           // comment_text:
           //   typeof comment_text === "undefined"
           //     ? ""
@@ -46,6 +57,7 @@ export class HackerNewsRepository implements HackerNewsDataSource {
           created_at,
           created_at_i,
           deleted: deleted === undefined ? false : deleted,
+          like: like === undefined ? false : like,
           objectID,
           story_url: typeof story_url === "undefined" ? "" : story_url,
           story_title: typeof story_title === "undefined" ? "" : story_title,
@@ -67,6 +79,14 @@ export class HackerNewsRepository implements HackerNewsDataSource {
     }
     return response;
   }
+
+  async search(query: string) {
+    try {
+      return await this.local.search(query);
+    } catch (error) {
+      throw error;
+    }
+  }
 }
 
 export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
@@ -84,6 +104,22 @@ export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
 }
 
 export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
+  async likePost(id: string): Promise<HackerNewsItemResponse[]> {
+    try {
+      const item = await AsyncStorage.getItem("posts");
+      if (item) {
+        const obj: { [key: string]: HackerNewsItemResponse } = JSON.parse(item);
+        if (obj && obj[id]) {
+          const hasLike = obj[id].like;
+          obj[id].like = !hasLike;
+          this.saveNews(Array.from(Object.values(obj)));
+        }
+      }
+      return this.getNews();
+    } catch (error) {
+      throw error;
+    }
+  }
   async deletePost(id: string): Promise<void> {
     try {
       const item = await AsyncStorage.getItem("posts");
@@ -116,6 +152,21 @@ export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
       let obj: { [key: string]: HackerNewsItemResponse } = {};
       reduceData(news, obj, true);
       await AsyncStorage.setItem("posts", JSON.stringify(obj));
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async search(query: string = "") {
+    try {
+      const news = await this.getNews();
+      return news
+        .filter(
+          (n) =>
+            n.title?.toLowerCase().includes(query.toLowerCase()) ||
+            n.story_title?.toLowerCase().includes(query.toLowerCase())
+        )
+        .sort((a, b) => b.created_at_i - a.created_at_i);
     } catch (error) {
       throw error;
     }

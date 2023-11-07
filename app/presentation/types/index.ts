@@ -1,4 +1,5 @@
 import { StackScreenProps } from "@react-navigation/stack";
+import { Swipeable } from "react-native-gesture-handler";
 
 export type RootStackParamList = {
   PostList: undefined;
@@ -15,10 +16,15 @@ export type PostResponse = {
 };
 
 export type Post = {
-  id: string;
   author: string;
+  closeLastOpened: () => void;
+  closeOpened: (item: Swipeable | null) => void;
   created_at: string;
+  id: string;
+  like: boolean;
+  onDelete?: (id: string) => void;
+  onLike?: (id: string) => void;
+  onSwipeableOpen: (item: Swipeable | null) => void;
   source: { html: string } | { uri: string };
   title: string;
-  onDelete?: (id: string) => void;
 };

@@ -13,8 +13,9 @@ export const reduceData = (
         created_at,
         created_at_i,
         deleted,
+        like,
         objectID,
-        comment_text,
+        // comment_text,
         story_title,
         story_url,
         title,
@@ -23,7 +24,6 @@ export const reduceData = (
     ) => {
       acc[objectID] = {
         author,
-        comment_text,
         // comment_text:
         //   typeof comment_text === "undefined"
         //     ? ""
@@ -31,6 +31,7 @@ export const reduceData = (
         created_at,
         created_at_i,
         deleted: checkValues && deleted === undefined ? false : deleted,
+        like: checkValues && like === undefined ? false : like,
         objectID,
         story_url:
           checkValues && typeof story_url === "undefined" ? "" : story_url,

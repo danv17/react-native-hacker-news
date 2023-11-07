@@ -3,6 +3,8 @@ import getNewsUseCase from "../useCase/getNewsUseCase";
 import detelePostUseCase from "../useCase/deletePostUseCase";
 import { getTimeAgo } from "../utils";
 import { HackerNewsReducerContext, HackerNewsStateContext } from "../context";
+import likePostUseCase from "../useCase/likePostUseCase";
+import searchPostsUseCase from "../useCase/searchPostsUseCase";
 
 export const useHackerNewsViewModel = (): [
   data: HackerNew[],
@@ -10,16 +12,16 @@ export const useHackerNewsViewModel = (): [
   isRefreshing: boolean,
   onDelete: (id: string) => void,
   onRefresh: () => void,
-  loadMore: () => void
+  loadMore: () => void,
+  onLike: (id: string) => void
+  // onSearch: (query: string) => void,
+  // query: string,
+  // onChangeQuery: (query: string) => void,
+  // onClear: () => void
 ] => {
-  const { isLoading, isRefreshing, page, posts } = useContext(
-    HackerNewsStateContext
-  );
+  const { isLoading, isRefreshing, isSearching, page, posts, query } =
+    useContext(HackerNewsStateContext);
   const update = useContext(HackerNewsReducerContext);
-  // const [page, setPage] = useState(0);
-  // const [isRefreshing, setIsRefreshing] = useState(false);
-  // const [isLoading, setIsLoading] = useState(false);
-  // const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
 
   const onDelete = (id: string) => {
     detelePostUseCase
@@ -28,12 +30,43 @@ export const useHackerNewsViewModel = (): [
       .catch((error) => console.log(error));
   };
 
+  const onLike = (id: string) => {
+    likePostUseCase
+      .execute(id)
+      .then((data) => {
+        update?.({ posts: prepareData(data) });
+      })
+      .catch((error) => console.log(error));
+  };
+
+  // const searchData = (query: string) => {
+  //   update?.({ isSearching: true });
+  //   searchPostsUseCase
+  //     .execute({ query })
+  //     .then((data) => {
+  //       update?.({ posts: prepareData(data), isSearching: false });
+  //     })
+  //     .catch((error) => console.log(error))
+  //     .finally(() => update?.({ isSearching: false }));
+  // };
+
+  // const onChangeQuery = (query: string) => {
+  //   update?.({ query });
+  // };
+
+  // const onClear = () => {
+  //   if (isSearching) {
+  //     update?.({ query: "", isSearching: false });
+  //   }
+  // };
+
   const prepareData = (data: HackerNewsItemResponse[]) => {
     return data.map(
       ({
         author,
         comment_text,
         created_at,
+        like,
         objectID,
         story_url,
         story_title,
@@ -58,6 +91,7 @@ export const useHackerNewsViewModel = (): [
           author,
           created_at: getTimeAgo(created_at),
           id: objectID,
+          like,
           source,
           title: <string>(title || story_title),
         };
@@ -71,27 +105,25 @@ export const useHackerNewsViewModel = (): [
       .then((data) => {
         if (data?.length) {
           update?.({ posts: prepareData(data), page: page + 1 });
-          // setHackerNews(prepareData(data));
-          // setPage(page + 1);
         }
       })
       .catch((error) => console.log(error))
       .finally(() => {
-        update?.({ isLoading: false, isRefreshing: false });
-        // setIsRefreshing(false);
-        // setIsLoading(false);
+        update?.({ isLoading: false, isRefreshing: false, isSearching: false });
       });
   };
 
   const onRefresh = () => {
     update?.({ isRefreshing: true });
-    // setIsRefreshing(true);
   };
 
   const loadMore = () => {
     update?.({ isLoading: true });
-    // setIsLoading(true);
   };
+
+  // const onSearch = (query: string) => {
+  //   update?.({ isSearching: true, query });
+  // };
 
   useEffect(() => {
     if (isRefreshing) {
@@ -105,7 +137,25 @@ export const useHackerNewsViewModel = (): [
     }
   }, [isLoading]);
 
+  // useEffect(() => {
+  //   if (isSearching) {
+  //     searchData(query);
+  //   }
+  // }, [isSearching, query]);
+
   useEffect(fetchData, []);
 
-  return [posts, isLoading, isRefreshing, onDelete, onRefresh, loadMore];
+  return [
+    posts,
+    isLoading,
+    isRefreshing,
+    onDelete,
+    onRefresh,
+    loadMore,
+    onLike,
+    // onSearch,
+    // query,
+    // onChangeQuery,
+    // onClear,
+  ];
 };

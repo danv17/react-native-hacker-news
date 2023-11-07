@@ -9,6 +9,7 @@ type HackerNewsItemResponse = {
   created_at_i: number;
   comment_text?: string;
   deleted: boolean;
+  like: boolean;
   objectID: string;
   story_title?: string;
   story_url?: string;
