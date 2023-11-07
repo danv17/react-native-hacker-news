@@ -31,8 +31,6 @@ export class HackerNewsRepository implements HackerNewsDataSource {
   ): Promise<HackerNewsItemResponse[]> {
     let response: HackerNewsItemResponse[];
     try {
-      // await AsyncStorage.multiRemove(["page", "currentPage", "posts"]);
-      // return [];
       const nextPage = await getPage(page, isRefreshing);
       const { hits, page: currentPage } = await this.remote.getNews(nextPage);
       const remoteNews = hits.map(
@@ -43,17 +41,12 @@ export class HackerNewsRepository implements HackerNewsDataSource {
           deleted,
           like,
           objectID,
-          // comment_text,
           story_title,
           story_url,
           title,
           url,
         }) => ({
           author,
-          // comment_text:
-          //   typeof comment_text === "undefined"
-          //     ? ""
-          //     : decodeURIComponent(comment_text),
           created_at,
           created_at_i,
           deleted: deleted === undefined ? false : deleted,

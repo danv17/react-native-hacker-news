@@ -14,10 +14,6 @@ export const useHackerNewsViewModel = (): [
   onRefresh: () => void,
   loadMore: () => void,
   onLike: (id: string) => void
-  // onSearch: (query: string) => void,
-  // query: string,
-  // onChangeQuery: (query: string) => void,
-  // onClear: () => void
 ] => {
   const { isLoading, isRefreshing, isSearching, page, posts, query } =
     useContext(HackerNewsStateContext);
@@ -38,27 +34,6 @@ export const useHackerNewsViewModel = (): [
       })
       .catch((error) => console.log(error));
   };
-
-  // const searchData = (query: string) => {
-  //   update?.({ isSearching: true });
-  //   searchPostsUseCase
-  //     .execute({ query })
-  //     .then((data) => {
-  //       update?.({ posts: prepareData(data), isSearching: false });
-  //     })
-  //     .catch((error) => console.log(error))
-  //     .finally(() => update?.({ isSearching: false }));
-  // };
-
-  // const onChangeQuery = (query: string) => {
-  //   update?.({ query });
-  // };
-
-  // const onClear = () => {
-  //   if (isSearching) {
-  //     update?.({ query: "", isSearching: false });
-  //   }
-  // };
 
   const prepareData = (data: HackerNewsItemResponse[]) => {
     return data.map(
@@ -121,10 +96,6 @@ export const useHackerNewsViewModel = (): [
     update?.({ isLoading: true });
   };
 
-  // const onSearch = (query: string) => {
-  //   update?.({ isSearching: true, query });
-  // };
-
   useEffect(() => {
     if (isRefreshing) {
       fetchData();
@@ -137,12 +108,6 @@ export const useHackerNewsViewModel = (): [
     }
   }, [isLoading]);
 
-  // useEffect(() => {
-  //   if (isSearching) {
-  //     searchData(query);
-  //   }
-  // }, [isSearching, query]);
-
   useEffect(fetchData, []);
 
   return [
@@ -153,9 +118,5 @@ export const useHackerNewsViewModel = (): [
     onRefresh,
     loadMore,
     onLike,
-    // onSearch,
-    // query,
-    // onChangeQuery,
-    // onClear,
   ];
 };

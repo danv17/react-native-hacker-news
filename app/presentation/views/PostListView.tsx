@@ -10,19 +10,8 @@ import { useScroll } from "../../domain/hooks/useScroll";
 import { TouchableOpacity } from "react-native-gesture-handler";
 
 export default function PostListView() {
-  const [
-    news,
-    isLoading,
-    isRefreshing,
-    onDelete,
-    onRefresh,
-    loadMore,
-    onLike,
-    // onSearch,
-    // query,
-    // onChangeQuery,
-    // onClear,
-  ] = useHackerNewsViewModel();
+  const [news, isLoading, isRefreshing, onDelete, onRefresh, loadMore, onLike] =
+    useHackerNewsViewModel();
   const [closeOpened, onSwipeableOpen, closeLastOpened] = useSwipeableItem();
   const [isTop, scrollTop, onScroll, onStartReached] = useScroll();
   const flRef = useRef<FlatList<HackerNew>>(null);
@@ -62,7 +51,7 @@ export default function PostListView() {
         refreshing={isRefreshing}
         onRefresh={onRefresh}
         onEndReached={loadMore}
-        // showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={false}
         ListFooterComponent={() => isLoading && <Loading />}
         onScroll={onScroll}
         onStartReached={onStartReached}
