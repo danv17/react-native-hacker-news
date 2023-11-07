@@ -4,13 +4,14 @@ type HackerNewsResponse = {
 };
 
 type HackerNewsItemResponse = {
-  objectID: string;
   author: string;
-  title?: string;
-  story_title?: string;
-  created_at_i: number;
   created_at: string;
-  story_url?: string;
+  created_at_i: number;
   comment_text?: string;
   deleted: boolean;
+  objectID: string;
+  story_title?: string;
+  story_url?: string;
+  title?: string;
+  url?: string;
 };

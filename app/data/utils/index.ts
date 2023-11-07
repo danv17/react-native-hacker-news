@@ -18,12 +18,16 @@ export const reduceData = (
         story_title,
         story_url,
         title,
+        url,
       }
     ) => {
       acc[objectID] = {
         author,
+        comment_text,
         // comment_text:
-        //   typeof comment_text === "undefined" ? "" : comment_text,
+        //   typeof comment_text === "undefined"
+        //     ? ""
+        //     : decodeURIComponent(comment_text),
         created_at,
         created_at_i,
         deleted: checkValues && deleted === undefined ? false : deleted,
@@ -33,6 +37,7 @@ export const reduceData = (
         story_title:
           checkValues && typeof story_title === "undefined" ? "" : story_title,
         title: checkValues && typeof title === "undefined" ? "" : title,
+        url,
       };
       return acc;
     },

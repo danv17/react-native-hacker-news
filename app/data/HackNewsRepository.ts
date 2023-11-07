@@ -35,8 +35,14 @@ export class HackerNewsRepository implements HackerNewsDataSource {
           story_title,
           story_url,
           title,
+          url,
         }) => ({
           author,
+          comment_text,
+          // comment_text:
+          //   typeof comment_text === "undefined"
+          //     ? ""
+          //     : decodeURIComponent(comment_text),
           created_at,
           created_at_i,
           deleted: deleted === undefined ? false : deleted,
@@ -44,6 +50,7 @@ export class HackerNewsRepository implements HackerNewsDataSource {
           story_url: typeof story_url === "undefined" ? "" : story_url,
           story_title: typeof story_title === "undefined" ? "" : story_title,
           title: typeof title === "undefined" ? "" : title,
+          url,
         })
       );
       const localNews = await this.local.getNews();
@@ -51,6 +58,9 @@ export class HackerNewsRepository implements HackerNewsDataSource {
       await this.local.saveNews(mergedData);
       await AsyncStorage.setItem("currentPage", String(currentPage));
       response = mergedData.filter((d) => !d.deleted);
+      if (response.length) {
+        response = response.sort((a, b) => b.created_at_i - a.created_at_i);
+      }
     } catch (error) {
       await AsyncStorage.removeItem("posts");
       response = await this.local.getNews();

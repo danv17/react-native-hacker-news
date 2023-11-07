@@ -20,4 +20,5 @@ export type Post = {
   created_at: string;
   source: { html: string } | { uri: string };
   title: string;
+  onDelete?: (id: string) => void;
 };

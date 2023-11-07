@@ -5,6 +5,7 @@ import { Swipeable } from "react-native-gesture-handler";
 import Button from "./commons/Button";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { useSwipeableItem } from "../../domain/hooks/useSwipeableItem";
 
 export default function PostItem({
   author,
@@ -17,10 +18,9 @@ export default function PostItem({
   source,
   title,
 }: Post & {
-  onDelete?: (id: string) => void;
-  closeOpened?: (item: Swipeable | null) => void;
-  onSwipeableOpen?: (item: Swipeable | null) => void;
-  closeLastOpened?: () => void;
+  closeLastOpened: () => void;
+  closeOpened: (item: Swipeable | null) => void;
+  onSwipeableOpen: (item: Swipeable | null) => void;
 }) {
   const navigation =
     useNavigation<
@@ -30,7 +30,7 @@ export default function PostItem({
         undefined
       >
     >();
-
+  // const [closeOpened, onSwipeableOpen, closeLastOpened] = useSwipeableItem();
   const item = useRef<Swipeable>(null);
 
   return (

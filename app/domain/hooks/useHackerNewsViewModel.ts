@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import getNewsUseCase from "../useCase/getNewsUseCase";
 import detelePostUseCase from "../useCase/deletePostUseCase";
 import { getTimeAgo } from "../utils";
+import { HackerNewsReducerContext, HackerNewsStateContext } from "../context";
 
 export const useHackerNewsViewModel = (): [
   data: HackerNew[],
@@ -11,12 +12,16 @@ export const useHackerNewsViewModel = (): [
   onRefresh: () => void,
   loadMore: () => void
 ] => {
-  const [page, setPage] = useState(0);
-  const [isRefreshing, setIsRefreshing] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
+  const { isLoading, isRefreshing, page, posts } = useContext(
+    HackerNewsStateContext
+  );
+  const update = useContext(HackerNewsReducerContext);
+  // const [page, setPage] = useState(0);
+  // const [isRefreshing, setIsRefreshing] = useState(false);
+  // const [isLoading, setIsLoading] = useState(false);
+  // const [hackerNews, setHackerNews] = useState<HackerNew[]>([]);
 
-  const onDelete = async (id: string) => {
+  const onDelete = (id: string) => {
     detelePostUseCase
       .execute(id)
       .then(onRefresh)
@@ -33,19 +38,21 @@ export const useHackerNewsViewModel = (): [
         story_url,
         story_title,
         title,
+        url,
       }) => {
         let source;
-        if (story_url) {
-          const ext = story_url.substring(story_url.lastIndexOf(".") + 1);
+        const postUrl = story_url || url;
+        if (postUrl) {
+          const ext = postUrl.substring(postUrl.lastIndexOf(".") + 1);
           if (ext === "pdf") {
             source = {
-              uri: `http://docs.google.com/gview?embedded=true&url=${story_url}`,
+              uri: `http://docs.google.com/gview?embedded=true&url=${postUrl}`,
             };
           } else {
-            source = { uri: story_url };
+            source = { uri: postUrl };
           }
         } else {
-          source = { html: comment_text || "" };
+          source = { html: decodeURI(comment_text || "") };
         }
         return {
           author,
@@ -63,23 +70,27 @@ export const useHackerNewsViewModel = (): [
       .execute({ page, isRefreshing })
       .then((data) => {
         if (data?.length) {
-          setHackerNews(prepareData(data));
-          setPage(page + 1);
+          update?.({ posts: prepareData(data), page: page + 1 });
+          // setHackerNews(prepareData(data));
+          // setPage(page + 1);
         }
       })
       .catch((error) => console.log(error))
       .finally(() => {
-        setIsRefreshing(false);
-        setIsLoading(false);
+        update?.({ isLoading: false, isRefreshing: false });
+        // setIsRefreshing(false);
+        // setIsLoading(false);
       });
   };
 
   const onRefresh = () => {
-    setIsRefreshing(true);
+    update?.({ isRefreshing: true });
+    // setIsRefreshing(true);
   };
 
   const loadMore = () => {
-    setIsLoading(true);
+    update?.({ isLoading: true });
+    // setIsLoading(true);
   };
 
   useEffect(() => {
@@ -96,5 +107,5 @@ export const useHackerNewsViewModel = (): [
 
   useEffect(fetchData, []);
 
-  return [hackerNews, isLoading, isRefreshing, onDelete, onRefresh, loadMore];
+  return [posts, isLoading, isRefreshing, onDelete, onRefresh, loadMore];
 };
