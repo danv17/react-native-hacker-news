@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { getPage, mergeData, reduceData } from "./utils";
 
-export class HackerNewsRepository implements HackerNewsDataSource {
+class HackerNewsRepository implements HackerNewsDataSource {
   constructor(
     private local: HackerNewsLocalDataSource,
     private remote: HackerNewsRemoteDataSource
@@ -27,10 +27,13 @@ export class HackerNewsRepository implements HackerNewsDataSource {
   }
   async getNews(
     page: number = 0,
-    isRefreshing: boolean
+    isRefreshing: boolean,
+    query: string = ""
   ): Promise<HackerNewsItemResponse[]> {
     let response: HackerNewsItemResponse[];
     try {
+      // await AsyncStorage.multiRemove(["posts", "currentPage"]);
+      // return [];
       const nextPage = await getPage(page, isRefreshing);
       const { hits, page: currentPage } = await this.remote.getNews(nextPage);
       const remoteNews = hits.map(
@@ -62,7 +65,12 @@ export class HackerNewsRepository implements HackerNewsDataSource {
       const mergedData = mergeData(remoteNews, localNews);
       await this.local.saveNews(mergedData);
       await AsyncStorage.setItem("currentPage", String(currentPage));
-      response = mergedData.filter((d) => !d.deleted);
+      response = mergedData.filter(
+        (d) =>
+          !d.deleted &&
+          (d.title?.toLowerCase().includes(query.toLowerCase()) ||
+            d.story_title?.toLowerCase().includes(query.toLowerCase()))
+      );
       if (response.length) {
         response = response.sort((a, b) => b.created_at_i - a.created_at_i);
       }
@@ -82,7 +90,7 @@ export class HackerNewsRepository implements HackerNewsDataSource {
   }
 }
 
-export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
+class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
   async getNews(page: number = 0): Promise<HackerNewsResponse> {
     try {
       const response = await fetch(
@@ -96,7 +104,7 @@ export class HackerNewsRemoteRepository implements HackerNewsRemoteDataSource {
   }
 }
 
-export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
+class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
   async likePost(id: string): Promise<HackerNewsItemResponse[]> {
     try {
       const item = await AsyncStorage.getItem("posts");
@@ -156,8 +164,9 @@ export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
       return news
         .filter(
           (n) =>
-            n.title?.toLowerCase().includes(query.toLowerCase()) ||
-            n.story_title?.toLowerCase().includes(query.toLowerCase())
+            !n.deleted &&
+            (n.title?.toLowerCase().includes(query.toLowerCase()) ||
+              n.story_title?.toLowerCase().includes(query.toLowerCase()))
         )
         .sort((a, b) => b.created_at_i - a.created_at_i);
     } catch (error) {
@@ -165,3 +174,12 @@ export class HackerNewsLocalRepository implements HackerNewsLocalDataSource {
     }
   }
 }
+
+const dataSourceInstance = Object.freeze(
+  new HackerNewsRepository(
+    new HackerNewsLocalRepository(),
+    new HackerNewsRemoteRepository()
+  )
+);
+
+export default dataSourceInstance;

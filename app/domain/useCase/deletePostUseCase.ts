@@ -1,21 +1,15 @@
-import {
-  HackerNewsLocalRepository,
-  HackerNewsRemoteRepository,
-  HackerNewsRepository,
-} from "../../data/HackNewsRepository";
-
-const local = new HackerNewsLocalRepository();
-const remote = new HackerNewsRemoteRepository();
-const repo = new HackerNewsRepository(local, remote);
+import dataSourceInstance from "../../data/HackNewsRepository";
 
 class DeletePostUseCase implements UseCase<void, string> {
   async execute(id: string): Promise<void> {
     try {
-      repo.deletePost(id);
+      dataSourceInstance.deletePost(id);
     } catch (error) {
       throw error;
     }
   }
 }
 
-export default new DeletePostUseCase();
+const deletePostUseCase = Object.freeze(new DeletePostUseCase());
+
+export default deletePostUseCase;

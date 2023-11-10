@@ -1,9 +1,9 @@
-import { View, Text, StyleSheet, Pressable } from "react-native";
 import React, { useRef } from "react";
-import { Post, RootStackParamList } from "../types";
+import { View, Text, StyleSheet, Pressable } from "react-native";
 import { Swipeable } from "react-native-gesture-handler";
 import { useNavigation } from "@react-navigation/native";
 import { StackNavigationProp } from "@react-navigation/stack";
+import { Post, RootStackParamList } from "../types";
 import SwipeButton from "./commons/SwipeButton";
 
 export default function PostItem({
@@ -30,23 +30,27 @@ export default function PostItem({
 
   const item = useRef<Swipeable>(null);
 
+  const renderRightAction = () => (
+    <SwipeButton icon="trash" onPress={(e) => onDelete?.(id)} disabled={like} />
+  );
+
+  const renderLeftAction = () => (
+    <SwipeButton
+      icon="heart"
+      onPress={(e) => {
+        onLike?.(id);
+        closeLastOpened();
+      }}
+      type="like"
+      side="left"
+      inverted={like}
+    />
+  );
+
   return (
     <Swipeable
-      renderRightActions={() => (
-        <SwipeButton icon="trash" onPress={(e) => onDelete?.(id)} />
-      )}
-      renderLeftActions={() => (
-        <SwipeButton
-          icon="heart"
-          onPress={(e) => {
-            onLike?.(id);
-            closeLastOpened();
-          }}
-          type="like"
-          side="left"
-          inverted={like}
-        />
-      )}
+      renderRightActions={renderRightAction}
+      renderLeftActions={renderLeftAction}
       overshootRight={false}
       ref={item}
       onSwipeableWillOpen={() => closeOpened?.(item.current)}
@@ -80,7 +84,6 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFF",
     borderRadius: 20,
     marginVertical: 5,
-    marginHorizontal: 10,
   },
   item: {
     paddingHorizontal: 16,

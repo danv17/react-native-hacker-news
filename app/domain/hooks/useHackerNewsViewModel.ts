@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useState } from "react";
 import getNewsUseCase from "../useCase/getNewsUseCase";
 import detelePostUseCase from "../useCase/deletePostUseCase";
 import { getTimeAgo } from "../utils";
@@ -13,7 +13,11 @@ export const useHackerNewsViewModel = (): [
   onDelete: (id: string) => void,
   onRefresh: () => void,
   loadMore: () => void,
-  onLike: (id: string) => void
+  onLike: (id: string) => void,
+  onSearch: (query: string) => void,
+  onClear: () => void,
+  query: string,
+  onChangeQuery: (query: string) => void
 ] => {
   const { isLoading, isRefreshing, isSearching, page, posts, query } =
     useContext(HackerNewsStateContext);
@@ -34,6 +38,24 @@ export const useHackerNewsViewModel = (): [
       })
       .catch((error) => console.log(error));
   };
+
+  const onSearch = (query: string = "") => {
+    update?.({ isSearching: true });
+    searchPostsUseCase
+      .execute({ query })
+      .then((data) => {
+        update?.({ posts: prepareData(data) });
+      })
+      .catch((error) => console.log(error));
+  };
+
+  const onClear = () => {
+    update?.({ isSearching: false, isRefreshing: true, query: "" });
+  };
+
+  const onChangeQuery = useCallback((query: string) => {
+    update?.({ query });
+  }, []);
 
   const prepareData = (data: HackerNewsItemResponse[]) => {
     return data.map(
@@ -76,7 +98,7 @@ export const useHackerNewsViewModel = (): [
 
   const fetchData = () => {
     getNewsUseCase
-      .execute({ page, isRefreshing })
+      .execute({ page, isRefreshing, query })
       .then((data) => {
         if (data?.length) {
           update?.({ posts: prepareData(data), page: page + 1 });
@@ -84,7 +106,7 @@ export const useHackerNewsViewModel = (): [
       })
       .catch((error) => console.log(error))
       .finally(() => {
-        update?.({ isLoading: false, isRefreshing: false, isSearching: false });
+        update?.({ isLoading: false, isRefreshing: false });
       });
   };
 
@@ -92,8 +114,8 @@ export const useHackerNewsViewModel = (): [
     update?.({ isRefreshing: true });
   };
 
-  const loadMore = () => {
-    update?.({ isLoading: true });
+  const onEndReached = () => {
+    !isSearching && update?.({ isLoading: true });
   };
 
   useEffect(() => {
@@ -116,7 +138,11 @@ export const useHackerNewsViewModel = (): [
     isRefreshing,
     onDelete,
     onRefresh,
-    loadMore,
+    onEndReached,
     onLike,
+    onSearch,
+    onClear,
+    query,
+    onChangeQuery,
   ];
 };

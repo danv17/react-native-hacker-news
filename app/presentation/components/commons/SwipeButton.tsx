@@ -8,6 +8,7 @@ export default function SwipeButton({
   side = "right",
   type = "delete",
   inverted = false,
+  disabled = false,
 }: Omit<ButtonProps, "title"> & {
   icon: string;
   inverted?: boolean;
@@ -16,6 +17,7 @@ export default function SwipeButton({
 }) {
   return (
     <TouchableOpacity
+      disabled={disabled}
       onPress={onPress}
       style={[
         styles.button,
@@ -27,6 +29,7 @@ export default function SwipeButton({
             }
           : styles[type],
         styles[side],
+        disabled && styles.disabled,
       ]}
     >
       <FontAwesome5
@@ -52,12 +55,10 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
   right: {
-    marginRight: 10,
-    marginLeft: 0,
+    marginLeft: 10,
   },
   left: {
-    marginRight: 0,
-    marginLeft: 10,
+    marginRight: 10,
   },
   delete: {
     backgroundColor: "#CC0100CC",
@@ -69,5 +70,10 @@ const styles = StyleSheet.create({
   },
   icon: {
     color: "#FFF",
+  },
+  disabled: {
+    borderWidth: 2,
+    borderColor: "#aeaeae",
+    backgroundColor: "#aeaeae90",
   },
 });

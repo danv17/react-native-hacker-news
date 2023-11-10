@@ -10,6 +10,7 @@ type HackerNew = {
 type GetNewsParamType = {
   page: number;
   isRefreshing: boolean;
+  query?: string;
 };
 
 type SearchPostsParamType = {

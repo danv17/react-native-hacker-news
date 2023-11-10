@@ -1,25 +1,21 @@
-import {
-  HackerNewsLocalRepository,
-  HackerNewsRemoteRepository,
-  HackerNewsRepository,
-} from "../../data/HackNewsRepository";
+import dataSourceInstance from "../../data/HackNewsRepository";
 
-const local = new HackerNewsLocalRepository();
-const remote = new HackerNewsRemoteRepository();
-const repo = new HackerNewsRepository(local, remote);
 class GetNewsUseCase
   implements UseCase<HackerNewsItemResponse[], GetNewsParamType>
 {
   async execute({
     page,
     isRefreshing,
+    query,
   }: GetNewsParamType): Promise<HackerNewsItemResponse[]> {
     try {
-      return await repo.getNews(page, isRefreshing);
+      return await dataSourceInstance.getNews(page, isRefreshing, query);
     } catch (error) {
       throw error;
     }
   }
 }
 
-export default new GetNewsUseCase();
+const getNewsUseCase = Object.freeze(new GetNewsUseCase());
+
+export default getNewsUseCase;

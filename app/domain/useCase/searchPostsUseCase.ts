@@ -1,12 +1,4 @@
-import {
-  HackerNewsLocalRepository,
-  HackerNewsRemoteRepository,
-  HackerNewsRepository,
-} from "../../data/HackNewsRepository";
-
-const local = new HackerNewsLocalRepository();
-const remote = new HackerNewsRemoteRepository();
-const repo = new HackerNewsRepository(local, remote);
+import dataSourceInstance from "../../data/HackNewsRepository";
 
 class SearchPostsUseCase
   implements UseCase<HackerNewsItemResponse[], SearchPostsParamType>
@@ -15,11 +7,13 @@ class SearchPostsUseCase
     query,
   }: SearchPostsParamType): Promise<HackerNewsItemResponse[]> {
     try {
-      return await repo.search(query);
+      return await dataSourceInstance.getNews(0, false, query);
     } catch (error) {
       throw error;
     }
   }
 }
 
-export default new SearchPostsUseCase();
+const searchPostsUseCase = Object.freeze(new SearchPostsUseCase());
+
+export default searchPostsUseCase;

@@ -1,21 +1,15 @@
-import {
-  HackerNewsLocalRepository,
-  HackerNewsRemoteRepository,
-  HackerNewsRepository,
-} from "../../data/HackNewsRepository";
-
-const local = new HackerNewsLocalRepository();
-const remote = new HackerNewsRemoteRepository();
-const repo = new HackerNewsRepository(local, remote);
+import dataSourceInstance from "../../data/HackNewsRepository";
 
 class LikePostUseCase implements UseCase<HackerNewsItemResponse[], string> {
   async execute(id: string): Promise<HackerNewsItemResponse[]> {
     try {
-      return repo.likePost(id);
+      return dataSourceInstance.likePost(id);
     } catch (error) {
       throw error;
     }
   }
 }
 
-export default new LikePostUseCase();
+const likePostUseCase = Object.freeze(new LikePostUseCase());
+
+export default likePostUseCase;

@@ -18,7 +18,7 @@ export const useScroll = (): [
 
   const scrollTop = (ref: FlatList | null) => {
     if (!isTop && ref) {
-      ref.scrollToIndex({ animated: true, index: 0 });
+      ref.scrollToIndex({ animated: true, index: 0, viewOffset: 100 });
       update?.({ isTop: true });
       setToTop(true);
     }
